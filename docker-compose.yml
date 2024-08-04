@@ -1,0 +1,40 @@
+version: '3'
+services:
+
+  service:
+    build: app
+    env_file:
+      - ./.env
+    volumes:
+      - static:/opt/app/static
+    entrypoint: /entrypoint.sh
+    depends_on:
+      - theatre-db
+
+  nginx:
+    image: nginx:1.27.0-alpine
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./nginx/conf.d:/etc/nginx/conf.d:ro
+      - static:/opt/app/static
+      - media:/opt/app/media
+    depends_on:
+      - service
+    ports:
+      - "80:80"
+    command: [nginx-debug, '-g', 'daemon off;']
+
+
+  theatre-db:
+    image: postgres:16.3-alpine
+    environment:
+      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+    volumes:
+      - ./database_dump.sql:/docker-entrypoint-initdb.d/init.sql
+    ports:
+      - "5432:5432"
+
+volumes: 
+  static: 
+  media:
