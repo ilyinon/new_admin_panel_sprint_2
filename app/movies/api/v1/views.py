@@ -6,7 +6,7 @@ from django.views.generic.list import BaseListView
 from django.views.generic.detail import BaseDetailView
 
 
-from movies.models import FilmWork
+from movies.models import FilmWork, Roles
 
 PAGINATE_MOVIES_PER_PAGE = 50
 
@@ -18,9 +18,9 @@ class MoviesApiMixin:
     def get_queryset(self):
         return FilmWork.objects.values('id', 'title', 'description', 'creation_date', 'rating', 'type').annotate(
             genres=ArrayAgg('genres__name', distinct=True),
-            actors=Coalesce(ArrayAgg('persons__full_name', filter=Q(personfilmwork__role='actor'), distinct=True), Value([""])),
-            directors=Coalesce(ArrayAgg('persons__full_name', filter=Q(personfilmwork__role='director'), distinct=True), Value([""])),
-            writers=Coalesce(ArrayAgg('persons__full_name', filter=Q(personfilmwork__role='writer'), distinct=True), Value([""]))
+            actors=Coalesce(ArrayAgg('persons__full_name', filter=Q(personfilmwork__role=Roles.ACTOR), distinct=True), Value([""])),
+            directors=Coalesce(ArrayAgg('persons__full_name', filter=Q(personfilmwork__role=Roles.DIRECTOR), distinct=True), Value([""])),
+            writers=Coalesce(ArrayAgg('persons__full_name', filter=Q(personfilmwork__role=Roles.WRITER), distinct=True), Value([""]))
             )
 
     def render_to_response(self, context, **response_kwargs):
