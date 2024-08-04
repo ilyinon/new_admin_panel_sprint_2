@@ -1,5 +1,6 @@
 from django.contrib.postgres.aggregates import ArrayAgg
-from django.db.models import Q
+from django.db.models import Q, Value
+from django.db.models.functions import Coalesce
 from django.http import JsonResponse
 from django.views.generic.list import BaseListView
 from django.views.generic.detail import BaseDetailView
@@ -9,27 +10,24 @@ from movies.models import FilmWork
 
 PAGINATE_MOVIES_PER_PAGE = 50
 
+
 class MoviesApiMixin:
     model = FilmWork
     http_method_names = ['get']
 
-
     def get_queryset(self):
-        qs = FilmWork.objects.values('id', 'title', 'description', 'creation_date', 'rating', 'type').annotate(
+        return FilmWork.objects.values('id', 'title', 'description', 'creation_date', 'rating', 'type').annotate(
             genres=ArrayAgg('genres__name', distinct=True),
-            actors=ArrayAgg('persons__full_name', filter=Q(personfilmwork__role='actor'), distinct=True),
-            directors=ArrayAgg('persons__full_name', filter=Q(personfilmwork__role='director'), distinct=True),
-            writers=ArrayAgg('persons__full_name', filter=Q(personfilmwork__role='writer'), distinct=True)
+            actors=Coalesce(ArrayAgg('persons__full_name', filter=Q(personfilmwork__role='actor'), distinct=True), Value([""])),
+            directors=Coalesce(ArrayAgg('persons__full_name', filter=Q(personfilmwork__role='director'), distinct=True), Value([""])),
+            writers=Coalesce(ArrayAgg('persons__full_name', filter=Q(personfilmwork__role='writer'), distinct=True), Value([""]))
             )
-
-        return qs
 
     def render_to_response(self, context, **response_kwargs):
         return JsonResponse(context)
 
 
 class MoviesListApi(MoviesApiMixin, BaseListView):
-    # model = FilmWork
     http_method_names = ['get']
     paginate_by = PAGINATE_MOVIES_PER_PAGE
 
@@ -49,7 +47,6 @@ class MoviesListApi(MoviesApiMixin, BaseListView):
 
 
 class MoviesDetailApi(MoviesApiMixin, BaseDetailView):
-    # model = FilmWork
 
     def get_context_data(self, **kwargs) -> JsonResponse:
         return {**kwargs["object"]}

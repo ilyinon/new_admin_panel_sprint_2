@@ -3,22 +3,11 @@ services:
 
   service:
     build: app
-    ports:
-      - "8000:8000"
     env_file:
       - ./.env
     volumes:
       - static:/opt/app/static
-    depends_on:
-      - theatre-db
-
-  service-static:
-    build: app
-    env_file:
-      - ./.env
-    volumes:
-      - static:/opt/app/static
-    command: ["python", "manage.py", "collectstatic", "--noinput"]
+    entrypoint: /entrypoint.sh
     depends_on:
       - theatre-db
 
@@ -45,7 +34,6 @@ services:
       - ./database_dump.sql:/docker-entrypoint-initdb.d/init.sql
     ports:
       - "5432:5432"
-
 
 volumes: 
   static: 

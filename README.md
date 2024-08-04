@@ -1,10 +1,12 @@
-# Описание задания на 2 спринт
- 
-Описание структуры и порядок выполнения проекта:
+# Проектное задание: Docker-compose
 
-1. `docker_compose` — задача про настройку Nginx, Docker и Django.
-2. `django_api` — задача про реализацию API для выдачи информации о фильме.
+Для того чтобы запустить проект нужно выполнить команду
+`docker-compose up  -d --build`
 
-Напоминаем, что все части работы нужно сдавать на ревью одновременно.
+после этого можно войти в админку `http://localhost/admin/`, для входа используйте логин `admin` и пароль `123123`
 
-Успехов!
+получить список фильмов по API через `http://localhost/api/v1/movies/`
+получить фильм по его UUID через  `http://localhost/api/v1/movies/<UUID>`
+
+для запуска swagger используйте комманду в корне проекта
+` docker run -d -p 8080:8080 --name swagger -v ./swagger/openapi.yaml/openapi.yaml:/swagger.yaml -e SWAGGER_JSON=/swagger.yaml swaggerapi/swagger-ui` после этого можно полкючиться `localhost:8000`
