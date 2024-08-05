@@ -37,8 +37,7 @@ SECRET_KEY = os.getenv('SECRET_KEY', 'secret_key')
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = os.getenv('DEBUG', False) == 'True'
 
-ALLOWED_HOSTS = ['localhost', '127.0.0.1', '[::1]']
-# ALLOWED_HOSTS = ['*']
+ALLOWED_HOSTS = os.environ.get('ALLOWED_HOSTS').split(',')
 
 # Application definition
 
@@ -137,4 +136,4 @@ MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-CORS_ALLOWED_ORIGINS = ["http://127.0.0.1:8080", "http://localhost:8080"]
+CORS_ALLOWED_ORIGINS = os.environ.get('CORS_ALLOWED_ORIGINS').split(',')
